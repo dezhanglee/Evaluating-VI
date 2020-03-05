@@ -1,0 +1,183 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}%
+\usepackage{makecell}
+\usepackage{natbib}
+
+\setcitestyle{authoryear,open={(},close={)}}
+
+\usepackage{graphicx}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{setspace}
+\doublespacing
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\numberwithin{theorem}{section}
+
+
+\makeatletter \let\c@table\c@figure \makeatother %to make table and figure run on same counter
+
+ \usepackage{pdfpages} % for cover pg
+ 
+\begin{document}
+
+Note: Only a subset (30\%) of the original data is
+given here. 
+
+\section{Logistic Regression} \label{ch_expt_lr_sect}
+
+
+
+We consider the logistic regression model. An
+uninformative prior will be used first, followed
+by an informative prior based on past research. The results
+obtained will be compared with the model fit derived using 
+MLE. 
+
+In this section, the dataset used will be from a 
+study conducted in a medical school to determine the
+effectiveness of games in the classroom, which 
+was analysed in \cite{ang2018gamifying}, and 
+\cite{ang2020gamifying}. We will attempt to analyse a
+subset of this data using alternative approaches 
+not used in the 
+papers. 
+
+
+In this study, students
+were grouped into 3 groups - group 0, group 1 and group 2. 
+Group 0 was the control group, in which students were
+taught the usual way. Groups 1 and 2 were taught using
+gamification in the classroom, but both groups were exposed
+to types of classroom interventions. 
+
+The effectiveness of the games is measured through
+self-directed learning traits, which consists of
+motivation, control, initiative and self-efficacy. These
+traits were measured by administering
+the PRO-SDLS survey \citep{stockdale2011development} to
+the students on the first day of the course, and after the
+course has concluded. 
+
+Each question in the survey is
+corresponds to one of the self-directed learning traits, 
+and the overall score of a trait is measured by averaging
+the responses used for a particular question. For example,
+the questions used to measure `motivation' are questions
+3, 8, 11, 14, 16, 18, and 20. Suppose a student responds
+5, 4, 3, 4, 3, 5, and 1 to those questions, then his
+motivation score would be $(5+4+3+4+5+1)/7 = 3.14$. This
+strategy of averaging scores from the same construct has
+been used previously, such as in \cite{cazan2014self}, 
+\cite{hall2011self}, and \cite{schulze2017massive}. 
+
+To assess if the games have worked, the pre and post course
+survey scores for each student were calculated. Subsequently,
+the difference between the post and pre survey scores were
+calculated, and the games are said to work if the difference
+in scores is positive. If the difference in 
+scores are less than or equal
+to 0, it is said that the games did not work on the student.
+
+In this section, we will attempt to study the impact of 
+gamification exercises on initiative, one of the traits
+which was found to have improved in \cite{ang2020gamifying}.
+This will be done by fitting a logistic regression model to
+the data. 
+
+Define response variable $Y$ as,
+\[
+Y= \begin{cases} 1 &\mbox{if } \text{post - pre scores }> 0, \\
+0  & \mbox{otherwise,}\end{cases}
+\]
+and for each student, define dummy variables $X_1$ and 
+$X_2$ such that, 
+\[
+X_k= \begin{cases} 1 &\mbox{if } \text{student is in group $k$,} \\
+0  & \mbox{otherwise,}\end{cases} \text{ for } k=1,2.
+\]
+
+Let $p=P(Y=1)$. Then, we can write the logistic regression
+model as 
+\[
+	\log \frac{p}{1-p} = \alpha + \beta_1 X_1 + \beta_2 X_2,
+\]
+where $\alpha$ is the baseline log odds (log odds when the
+student is in group 0 - no intervention). $\beta_1$ and $\beta_2$ are
+the increase in log odds when the student is in group 1
+and group 2, respectively (the intervention groups). 
+Our goal is to obtain 
+parameter estimates for $\alpha$, $\beta_1$ and $\beta_2$,
+and use them to assess the impact of the various types
+of classroom interventions on the `initiative' trait of
+students. 
+
+\subsection{Logistic Regression using MLE}
+
+To provide a benchmark for our MCMC fit, the model was first
+fitted using MLE to estimate the parameters. The summary
+of this model is given in Table \ref{expt_lr_mle_1}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{l|lll}
+\hline
+Coefficient & Estimate & Standard Error & p-value \\ \hline
+$\alpha$    & -0.241   & -0.599         & 0.5495            \\
+$\beta_1$   & 1.128    & 2.200          & 0.0278            \\
+$\beta_2$   & 1.253    & 1.766          & 0.0774          \\ \hline 
+\end{tabular}
+\caption{Summary of logistic regression fit \label{expt_lr_mle_1}}
+\end{table}
+
+The p-values in Table \ref{expt_lr_mle_1} is tested
+under the null hypothesis that the various parameters
+are equal to zero. Both $\beta_1$ and $\beta_2$ are
+significant under $p = 0.1$, although only $\beta_1$ is
+significant under $p = 0.05$. This suggest that 
+both groups $1$ and $2$ have an increased odds of 
+success (increased initiative levels after the intervention).
+
+\subsection{MCMC}
+
+Two models were fitted to the data using MCMC. The first
+is one which uses a non informative flat prior for all 
+parameters. 
+
+The second model utilizes the findings in
+\cite{ang2020gamifying}, based on qualitative feedback
+from students, that there were indeed increased initiative
+levels post intervention, for both the non control groups.  
+Furthermore, we assume that for the control group, there
+is no change in initiative levels pre and post intervention. 
+Therefore, the following priors are used,
+\begin{equation}\label{eq_inform_prior_game_exp}
+\begin{split}
+\alpha&\sim N(0,0.5^2)\\
+\beta_1&\sim N(1,1.5^2)\\
+\beta_2&\sim N(1,1.5^2).
+\end{split}
+\end{equation}
+In particular, a weakly informative prior was chosen for
+$\beta_1$ and $\beta_2$ to reflect our belief that
+ gamification indeed helps. A more informative prior
+ was used for $\alpha$ to support our belief that 
+ the control group has no impact on the students. 
+ 
+
+\bibliography{refs}
+\bibliographystyle{abbrvnat}
+\end{document}
