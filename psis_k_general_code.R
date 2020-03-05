@@ -14,7 +14,7 @@ rstan_options(auto_write = TRUE)
 stan_code = ""
 
 #do not modify this. this is to pass the stan_code into RStan 
-m=stan_model(model_code = stan_code1)
+m=stan_model(model_code = stan_code)
 
 #replace NULL with the dataset you are working with
 data = NULL
