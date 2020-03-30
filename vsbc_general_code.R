@@ -49,10 +49,10 @@ for (qq in 1:nTrials) {
   #beta~normal(1,1.5);
   
   #Generate from the priors, and 
-  #concatinate them into the vector ab. For example
+  #concatinate them into ab. For example
   a=rnorm(1,0,.5)
   b=rnorm(2,1,1.5)
-  ab = c(a,b)
+  ab = cbind(a,b)
   
   resp = (ab<vb.out.1)
   prbs = apply(resp,2,mean)
